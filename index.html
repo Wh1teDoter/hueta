@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeridianX — Exclusive Protection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #0a0514; color: #ffffff; font-family: 'Segoe UI', sans-serif; font-weight: 700; overflow-x: hidden; }
+        header { padding: 40px; text-align: center; border-bottom: 2px solid #2d1b4e; background-color: #0d071a; }
+        .logo { font-size: 40px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; cursor: pointer; user-select: none; }
+        
+        .pricing { display: flex; justify-content: center; gap: 40px; padding: 60px 10%; flex-wrap: wrap; }
+        .card { 
+            background-color: #120a24; border: 2px solid #2d1b4e; border-radius: 20px; padding: 45px; 
+            width: 340px; display: flex; flex-direction: column; justify-content: space-between; 
+            min-height: 480px; box-sizing: border-box; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .card:hover { transform: scale(1.05); background-color: #1a0f35; box-shadow: 0 0 30px rgba(139, 92, 246, 0.3); }
+        
+        .btn { 
+            display: block; padding: 18px; border-radius: 12px; font-weight: 900; 
+            text-align: center; text-decoration: none; text-transform: uppercase; 
+            transition: 0.3s; cursor: pointer; background: transparent;
+        }
+        .btn-p { border: 2px solid #8b5cf6; color: #8b5cf6; }
+        .btn-p:hover { background: #8b5cf6; color: #fff; box-shadow: 0 0 20px #8b5cf6; }
+        .btn-d { border: 2px solid #ef4444; color: #ef4444; }
+        .btn-d:hover { background: #ef4444; color: #fff; box-shadow: 0 0 20px #ef4444; }
+
+        .fame-section { background-color: #0d071a; padding: 80px 10%; text-align: center; border-top: 2px solid #2d1b4e; }
+        .fame-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 50px; }
+        .fame-item { padding: 15px 30px; border: 1px solid #2d1b4e; border-radius: 8px; color: #a78bfa; font-size: 17px; font-weight: 800; transition: 0.3s; }
+        .fame-item:hover { border-color: #8b5cf6; color: #fff; background: rgba(139, 92, 246, 0.1); }
+
+        #admin-btn { 
+            position: fixed; bottom: 20px; right: 20px; display: none; 
+            background: #8b5cf6; color: white; padding: 15px 30px; 
+            border-radius: 10px; cursor: pointer; font-weight: 900; z-index: 9999; 
+        }
+        [contenteditable="true"] { outline: 2px dashed #8b5cf6; background: rgba(139, 92, 246, 0.1); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" onclick="checkAdmin()">MERIDIAN<span style="color:#8b5cf6">X</span></div>
+    </header>
+
+    <div class="pricing">
+        <div class="card" style="border-top: 6px solid #8b5cf6;">
+            <div>
+                <p style="color: #8b5cf6; font-size: 20px; letter-spacing: 3px; font-weight: 900;">PROTECTION</p>
+                <div id="price1" style="font-size: 65px; margin: 25px 0;">10$</div>
+                <ul id="list1" style="list-style: none; padding: 0; font-size: 18px; line-height: 2.2;">
+                    <li>— Защита от доксеров</li>
+                    <li>— Защита от осинтеров</li>
+                    <li>— Решение конфликтов</li>
+                </ul>
+            </div>
+            <div class="btn btn-p" onclick="order('PROTECTION')">Заказать</div>
+        </div>
+
+        <div class="card" style="border-top: 6px solid #ef4444;">
+            <div>
+                <p style="color: #ef4444; font-size: 20px; letter-spacing: 3px; font-weight: 900;">TERMINATION</p>
+                <div id="price2" style="font-size: 65px; margin: 25px 0;">15$</div>
+
+<ul id="list2" style="list-style: none; padding: 0; font-size: 18px; line-height: 2.2;">
+                    <li>— Удаление Шерлоков</li>
+                    <li>— Удаление Векторов</li>
+                    <li>— Удаление Фан Статов</li>
+                    <li>— Ликвидация ботов</li>
+                </ul>
+            </div>
+            <div class="btn btn-d" onclick="order('TERMINATION')">Ликвидировать</div>
+        </div>
+    </div>
+
+    <section class="fame-section">
+        <div style="font-size: 30px; letter-spacing: 8px; color: #8b5cf6; font-weight: 900;">FAME LIST</div>
+        <div class="fame-grid" id="fame-list">
+            <span class="fame-item">@attack_meridian</span>
+            <span class="fame-item">@meridianV2</span>
+            <span class="fame-item">@pravos1avniy</span>
+        </div>
+    </section>
+
+    <div id="admin-btn" onclick="saveData()">СОХРАНИТЬ ИЗМЕНЕНИЯ</div>
+
+    <script>
+        const SB_URL = 'https://uhbaysmjpdstwnpzabcm.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVoYmF5c21qcGRzdHducHphYmNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNzgxMzksImV4cCI6MjA4Nzg1NDEzOX0.fMS4W59zg8LqkOQ7rS8wxOVfQWXRPEihzkKAarmR0qw';
+        const TG_TOKEN = '8297693001:AAFMsYRlGevhVOhMJq4qU6AoVKTvoYICwzY';
+        const CHAT_ID = '6900275062';
+        const PASS = 'doxserisositehui';
+
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+        let clicks = 0;
+
+        async function load() {
+            const { data } = await supabase.from('site_data').select('*');
+            if (data) data.forEach(d => {
+                const el = document.getElementById(d.key);
+                if (el) el.innerHTML = d.content;
+            });
+        }
+
+        function checkAdmin() {
+            clicks++;
+            if (clicks === 5) {
+                if (prompt('Password:') === PASS) {
+                    document.getElementById('admin-btn').style.display = 'block';
+                    ['price1', 'price2', 'list1', 'list2', 'fame-list'].forEach(id => document.getElementById(id).contentEditable = true);
+                }
+                clicks = 0;
+            }
+        }
+
+        async function saveData() {
+            const keys = ['price1', 'price2', 'list1', 'list2', 'fame-list'];
+            for (let k of keys) {
+                const content = document.getElementById(k).innerHTML;
+                await supabase.from('site_data').upsert({ key: k, content: content }, { onConflict: 'key' });
+            }
+            alert('Сайт успешно обновлен!');
+        }
+
+        async function order(type) {
+            const text = 🔥 НОВЫЙ ЗАКАЗ!\nТариф: ${type}\nЖдут ответа в @attack_meridian;
+            await fetch(https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)});
+            alert('Заявка отправлена. Ожидайте ответа в Telegram.');
+            window.location.href = "https://t.me/attack_meridian";
+        }
+
+        load();
+    </script>
+</body>
+</html>
